@@ -1,0 +1,191 @@
+#+STARTUP: showall
+#+STARTUP: lognotestate
+#+TAGS: research(r) uvic(u) today(y) todo(t) cooking(c)
+#+SEQ_TODO: TODO(t) STARTED(s) DEFERRED(r) CANCELLED(c) | WAITING(w) DELEGATED(d) APPT(a) DONE(d)
+#+DRAWERS: HIDDEN STATE
+#+ARCHIVE: %s_done::
+#+TITLE: 
+#+CATEGORY: 
+#+PROPERTY: header-args:sql             :engine postgresql  :exports both :cmdline csc370
+#+PROPERTY: header-args:sqlite          :db /path/to/db  :colnames yes
+#+PROPERTY: header-args:C++             :results output :flags -std=c++17 -Wall --pedantic -Werror
+#+PROPERTY: header-args:R               :results output  :colnames yes
+#+OPTIONS: ^:nil
+
+
+
+#+begin_src java
+public class NumFinder {
+  private int smallest = Integer.MAX_VALUE;
+  private int largest = Integer.MIN_VALUE;
+
+  public void find(int[] nums) {
+    for(int n : nums) {
+      if(n < smallest) smallest = n;
+      if(n > largest) largest = n;
+    }
+  }
+
+  // getters for smallest and largest
+  public int largest() {return largest;}
+  public int smallest() {return smallest;}
+
+} 
+#+end_src
+
+#+begin_src sml
+fun max(nums) = 
+   if null nums then
+      valOf Int.minInt (* minInt is an option, so we need to extract it *)
+   else 
+      let
+         val max2 = max(tl nums)
+         val head =  hd nums
+      in
+         if head > max2 then
+            head
+         else 
+            max2
+      end
+
+val x = max([1,2,3,4])
+val y = max([~1, ~2, ~3])
+val z = max([])
+val z2 = max([~1073741824])
+#+end_src
+
+
+
+#+RESULTS:
+#+begin_example
+val max = fn : int list -> int
+val x = 4 : int
+val y = ~1 : int
+val z = ~1073741824 : int
+val z2 = ~1073741824 : int
+END
+#+end_example
+
+
+#+begin_src sml
+fun max(nums) = 
+    let
+      fun max_non_empty (nums) = 
+          let
+            val head = hd nums
+            val tail = tl nums
+          in
+            if null(tail)  then
+              head
+            else 
+              let
+                val restmax = max_non_empty(tail)
+              in
+                if head > restmax then
+                  head
+                else 
+                  restmax
+              end
+          end
+    in
+      if null nums then
+        NONE
+      else
+        SOME (max_non_empty nums)
+    end
+
+val x = max([1,2,3,4])
+val y = max([~1, ~2, ~3])
+val z = max([])
+val z2 = max([~1073741824])
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val max = fn : int list -> int option
+val x = SOME 4 : int option
+val y = SOME ~1 : int option
+val z = NONE : int option
+val z2 = SOME ~1073741824 : int option
+END
+#+end_example
+
+#+begin_src sml
+fun minmax(nums) = 
+    let
+      fun minmax_non_empty (nums) = 
+          let
+            val head = hd nums
+            val tail = tl nums
+          in
+            if null(tail)  then
+              (head, head)
+            else 
+              let
+                val (restmin, restmax) = minmax_non_empty(tail)
+              in
+                (
+                 (if head < restmin then head else restmin),
+                 (if head > restmax then head else restmax)
+                 )
+              end
+          end
+    in
+      if null nums then
+        NONE
+      else
+        SOME (minmax_non_empty nums)
+    end
+
+val x = minmax([1,2,3,4])
+val y = minmax([~1, ~2, ~3])
+val z = minmax([])
+val z2 = minmax([~1073741824])
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val minmax = fn : int list -> (int * int) option
+val x = SOME (1,4) : (int * int) option
+val y = SOME (~3,~1) : (int * int) option
+val z = NONE : (int * int) option
+val z2 = SOME (~1073741824,~1073741824) : (int * int) option
+END
+#+end_example
+
+
+
+
+
+
+
+
+
+
+
+#+begin_src sml
+fun maxmin(nums) = 
+   if null nums then
+       (valOf Int.minInt, valOf Int.minInt)
+   else 
+      let
+         val (max2, min2) = maxmin(tl nums)
+         val head =  hd nums
+      in
+         (if head > max2 then head else max2,
+          if head < min2 then head else min2)
+      end
+
+val x = maxmin([1,2,3,4])
+val y = maxmin([~1, ~2, ~3])
+val z = maxmin([])
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val maxmin = fn : int list -> int * int
+val x = (4,~1073741824) : int * int
+val y = (~1,~1073741824) : int * int
+val z = (~1073741824,~1073741824) : int * int
+END
+#+end_example
