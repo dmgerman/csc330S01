@@ -18,7 +18,7 @@
 * Generics
 
 
-#+begin_src sml
+#+begin_src sml :exports both
 fun first(lst) = 
    case lst of
       [] => NONE
@@ -43,7 +43,7 @@ END
 
 * Python
 
-#+begin_src python :results output
+#+begin_src python :results output :exports both
 def first(lst):
    return lst[0]
 
@@ -62,7 +62,7 @@ A
 
 * C
 
-#+begin_src C :main no :results output 
+#+begin_src C :main no :results output  :exports both
 #include <stdio.h>
 
 void *first(void *theArray) {
@@ -94,7 +94,7 @@ a
 
 * Java
 
-  #+begin_src java
+  #+begin_src java :exports both
 public class Pair<K, V> {
 
     private K key;
@@ -121,7 +121,7 @@ p1.getValue()  // would return String
 
 * C++
 
-#+begin_src C++ :main no :results output :flags -std=c++17 -Wall --pedantic -Werror
+#+begin_src C++ :main no :results output :flags -std=c++17 -Wall --pedantic -Werror :exports both
 #include <iostream>
 #include <vector>
 
@@ -152,7 +152,7 @@ this is a 9
 
 * Types Synonyms
 
-#+begin_src sml
+#+begin_src sml :exports both
 fun f(i:int):int =
    i + 1
 
@@ -170,7 +170,7 @@ END
 #+end_example
 
 
-#+begin_src C++ :main no :results output :flags -std=c++17 -Wall --pedantic -Werror
+#+begin_src C++ :main no :results output :flags -std=c++17 -Wall --pedantic -Werror :exports both
 #include <iostream>
 
 int f(int i) {
@@ -199,7 +199,7 @@ not the same as a new type
 
 * Type inference
 
-#+begin_src sml
+#+begin_src sml :exports both
 fun f (x,y) =
    x + y
 
@@ -229,7 +229,7 @@ print (f(2,3))
 
 * Tail recursion
 
-#+begin_src python :resuls output
+#+begin_src python :resuls output :exports both
 def f(x):
    f(x)
 
@@ -239,7 +239,7 @@ f(10)
 #+RESULTS:
 
 
-  #+begin_src python :results output
+  #+begin_src python :results output :exports both
 import inspect
 def f (x):
    thisFrame = inspect.currentframe()
