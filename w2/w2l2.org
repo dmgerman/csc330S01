@@ -1,0 +1,365 @@
+#+STARTUP: showall
+#+STARTUP: lognotestate
+#+TAGS: research(r) uvic(u) today(y) todo(t) cooking(c)
+#+SEQ_TODO: TODO(t) STARTED(s) DEFERRED(r) CANCELLED(c) | WAITING(w) DELEGATED(d) APPT(a) DONE(d)
+#+DRAWERS: HIDDEN STATE
+#+ARCHIVE: %s_done::
+#+TITLE: Week 2
+#+CATEGORY: 
+#+PROPERTY: header-args:sql             :engine postgresql  :exports both :cmdline csc370
+#+PROPERTY: header-args:sqlite          :db /path/to/db  :colnames yes
+#+PROPERTY: header-args:C++             :results output :flags -std=c++17 -Wall --pedantic -Werror
+#+PROPERTY: header-args:R               :results output  :colnames yes
+#+PROPERTY :header-args:python          :results output  
+#+OPTIONS: ^:nil
+
+* Topics
+
+  - [ ] Static environment vs dynamic environment
+
+  - [ ] operators and precedence
+
+  - [ ] types of a function
+
+  - [ ] pattern matching 
+
+  - [ ] Parameters in SML
+
+  - [ ] parameters in python
+
+  - [ ] tuples and records in python
+
+* Intro
+
+
+  
+
+* operators and precedence
+
+#+begin_src example
+4!
+#+end_src
+
+
+
+#+begin_src sml
+infix 9 +
+infix 1 *
+val x = 1 + 2 * 3;
+#+end_src
+
+#+RESULTS:
+#+begin_example
+infix 9 +
+infix 1 *
+val x = 9 : int
+END
+#+end_example
+
+#+begin_src sml
+fun x x = x * 2
+infixr 9 + 
+val y = x
+val z = x 1 + 2
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val x = fn : int -> int
+infixr 9 +
+val y = fn : int -> int
+val z = 4 : int
+END
+#+end_example
+   
+
+* pattern matching
+
+#+begin_src sml
+exception myerror
+
+
+fun last lst = 
+   case lst of (* [1,2,3]*)
+      []     => raise myerror
+    | [hd1]   => hd1
+    | _::tl => last tl (* => it expands the environment
+                            creates hd and tl 
+                            hd :type of the element of the 
+                                list => 1
+                            tl: list same type as lst => [2,3] *)
+    | _ => raise myerror
+
+val a = last[1,2,3]         
+#+end_src
+
+#+RESULTS:
+#+begin_example
+exception myerror
+val last = fn : 'a list -> 'a
+val a = 3 : int
+END
+#+end_example
+
+Pattern matching in Scala:
+
+https://docs.scala-lang.org/tour/pattern-matching.html
+
+https://doc.rust-lang.org/book/ch18-03-pattern-syntax.html
+
+
+#+begin_src sml
+datatype order = LESS | GREATER | EQUAL
+fun compare (x,y) = 
+   if (x < y) then
+      LESS
+   else if (x > y) then
+      GREATER
+   else
+      EQUAL
+
+val a = compare(1,2)
+val b = compare(2,2)
+val c = compare(2,1)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+datatype order = EQUAL | GREATER | LESS
+val compare = fn : int * int -> order
+val a = LESS : order
+val b = EQUAL : order
+val c = GREATER : order
+END
+#+end_example
+
+
+
+* Parameters
+
+#+begin_src sml
+
+fun g (x: int *int) = (#1 x) + (#2 x)
+fun f (x:int, y:int) = x + y (* pattern maching*)
+
+val a = f (3,4)
+val b = g (3,4)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val f = fn : int * int -> int
+val g = fn : int * int -> int
+val a = 7 : int
+val b = 7 : int
+END
+#+end_example
+
+using pattern matching
+
+#+begin_src sml
+fun f x =
+   let
+     val (y,z) = x (* use of pattern matching *)
+   in
+     y + z
+   end
+val a = f (3,2)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val f = fn : int * int -> int
+val a = 5 : int
+END
+#+end_example
+
+
+
+#+begin_src sml
+fun f (y,z) =
+   y + z
+
+val a = f (3,2)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val f = fn : int * int -> int
+val a = 5 : int
+END
+#+end_example
+
+Pattern matching at function declaration
+
+#+begin_src sml
+exception myerror
+fun last (lst) =
+   case lst of
+      []    => raise myerror
+   | hd::[] => hd 
+   | _::tl   => last(tl)
+
+val a = last [1,2,3]
+#+end_src
+
+#+RESULTS:
+#+begin_example
+exception myerror
+val last = fn : 'a list -> 'a
+val a = 3 : int
+END
+#+end_example
+
+#+begin_src sml
+exception myerror
+fun last []  = raise myerror
+  | last (hd::[]) = hd 
+  | last (_::tl)  = last(tl)
+
+val a = last [1,2,3]
+#+end_src
+
+#+RESULTS:
+#+begin_example
+exception myerror
+val last = fn : 'a list -> 'a
+val a = 3 : int
+END
+#+end_example
+
+
+#+begin_src sml
+fun fact 0 = 1
+  | fact n = n * fact(n-1)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val fact = fn : int -> int
+END
+#+end_example
+
+
+* parameters in python
+
+
+#+begin_src python :results output
+def f(x):
+   return x;
+
+def f2(x,y):
+   return x - y;
+
+#+end_src
+
+#+RESULTS:
+
+#+begin_src python :results output
+def f(x):
+   return x;
+
+def f2(x,y):
+   return x - y;
+
+print(f(10));
+print(f(x=10));
+print(f2(y=10, x=0));
+
+print(f2(10,1));
+x = (1,2)
+
+# print(f2(x)) # this would be an error
+
+print(f2(*x));
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+10
+10
+-10
+9
+-1
+#+end_example
+
+* tuples/records in python
+
+#+begin_src python :results output
+x = (1,2)
+print(x)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+(1, 2)
+#+end_example
+
+#+begin_src python :results output
+import collections as col
+recType = col.namedtuple('tag', ["f1", "f2", "f3"])
+
+r1 = recType(1,2,3)
+print(r1)
+print(r1.f1)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+tag(f1=1, f2=2, f3=3)
+1
+#+end_example
+
+#+begin_src  sml
+val r = {f1 = 5, f2 = 3, f3 = 0}
+
+fun f re = 
+    let
+      val {f1 = a, f2 = b, f3=c} = re
+    in
+      a + b + c
+    end
+val i = f r
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val r = {f1=5,f2=3,f3=0} : {f1:int, f2:int, f3:int}
+val f = fn : {f1:int, f2:int, f3:int} -> int
+val i = 8 : int
+END
+#+end_example
+
+
+#+begin_src  sml
+val r = {f1 = 5, f2 = 3, f3 = 0}
+
+fun f  {f2 = b , f1 = a, f3 = c} = 
+   a + b + c
+
+val i = f r
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val r = {f1=5,f2=3,f3=0} : {f1:int, f2:int, f3:int}
+val f = fn : {f1:int, f2:int, f3:int} -> int
+val i = 8 : int
+END
+#+end_example
+
+Bottom aligned:
+
+
+#+begin_src sml
+let
+  val _ = sideeffect
+  val _ = sideffect
+in
+   exp
+end
+#+end_src

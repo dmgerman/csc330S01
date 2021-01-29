@@ -1,0 +1,285 @@
+#+STARTUP: showall
+#+STARTUP: lognotestate
+#+TAGS: research(r) uvic(u) today(y) todo(t) cooking(c)
+#+SEQ_TODO: TODO(t) STARTED(s) DEFERRED(r) CANCELLED(c) | WAITING(w) DELEGATED(d) APPT(a) DONE(d)
+#+DRAWERS: HIDDEN STATE
+#+ARCHIVE: %s_done::
+#+TITLE: 
+#+CATEGORY: 
+#+PROPERTY: header-args:sql             :engine postgresql  :exports both :cmdline csc370
+#+PROPERTY: header-args:sqlite          :db /path/to/db  :colnames yes
+#+PROPERTY: header-args:C++             :results output :flags -std=c++17 -Wall --pedantic -Werror
+#+PROPERTY: header-args:R               :results output  :colnames yes
+#+PROPERTY :header-args:python          :results output  
+#+OPTIONS: ^:nil
+
+
+
+* Generics
+
+
+#+begin_src sml
+fun first(lst) = 
+   case lst of
+      [] => NONE
+   | x::xs' => SOME x
+
+val x = first [1,2,3,4]
+val y = first ["A", "3", "5"]
+val z = first [[1,2], [3,5], [5,6]]
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val first = fn : 'a list -> 'a option
+val x = SOME 1 : int option
+val y = SOME "A" : string option
+val z = SOME [1,2] : int list option
+END
+#+end_example
+
+
+* how do other languages do it?
+
+* Python
+
+#+begin_src python :results output
+def first(lst):
+   return lst[0]
+
+print(first ([1,2,3]))
+print(first (["A", "B", "C"]))
+print(first ([["A", 'B', "C"], [3]]))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+1
+A
+['A', 'B', 'C']
+#+end_example
+
+
+* C
+
+#+begin_src C :main no :results output 
+#include <stdio.h>
+
+void *first(void *theArray) {
+   return theArray;
+}
+
+int main(void)
+{
+   int a[] = {1,2,3};
+   char b[] = {'a', 'c', 'd'};
+
+   printf("%d\n", *((int *)first(a)));
+   printf("%c\n", *((char *)first(b)));
+
+   return 0;
+}
+#+end_src
+
+#+RESULTS:
+#+begin_example
+1
+a
+#+end_example
+
+
+
+
+
+
+* Java
+
+  #+begin_src java
+public class Pair<K, V> {
+
+    private K key;
+    private V value;
+
+    public Pair(K key, V value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public void setKey(K key) { this.key = key; }
+    public void setValue(V value) { this.value = value; }
+    public K getKey()   { return key; }
+    public V getValue() { return value; }
+}
+
+...
+Pair<Integer, String> p1 = new Pair<>(1, "apple");
+p1.getKey()  // would return Int
+p1.getValue()  // would return String
+
+  #+end_src
+
+
+* C++
+
+#+begin_src C++ :main no :results output :flags -std=c++17 -Wall --pedantic -Werror
+#include <iostream>
+#include <vector>
+
+template<typename T>
+T first(std::vector<T> v)
+{
+    return v[0];
+}
+
+
+int main(void)
+{
+   std::vector v ({9,1,2,3});
+   std::vector v2 ({"this is a 9","a 1","two 2","and 3"});
+
+   std::cout << first(v) << std::endl;
+   std::cout << first(v2) << std::endl;
+
+   return 0;
+}
+#+end_src
+
+#+RESULTS:
+#+begin_example
+9
+this is a 9
+#+end_example
+
+* Types Synonyms
+
+#+begin_src sml
+fun f(i:int):int =
+   i + 1
+
+val i = 5
+val z = f(i)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val f = fn : int -> int
+type myint = int
+val i = 5 : int
+val z = 6 : int
+END
+#+end_example
+
+
+#+begin_src C++ :main no :results output :flags -std=c++17 -Wall --pedantic -Werror
+#include <iostream>
+
+int f(int i) {
+   return i + 1;
+}
+
+int main(void)
+{
+   int i = 5;
+
+   std::cout << f(i) << std::endl;
+
+   return 0;
+}
+#+end_src
+
+#+RESULTS:
+#+begin_example
+6
+#+end_example
+
+
+not the same as a new type
+
+
+
+* Type inference
+
+#+begin_src sml
+fun f (x,y) =
+   x + y
+
+val z = f(2,3)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val f = fn : int * int -> int
+val z = 5 : int
+END
+#+end_example
+
+#+begin_src python :results output
+def f(x,y):
+   return x + y;
+
+print (f(2,3))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+5
+#+end_example
+
+
+
+* Tail recursion
+
+#+begin_src python :resuls output
+def f(x):
+   f(x)
+
+f(10)
+#+end_src
+
+#+RESULTS:
+
+
+  #+begin_src python :results output
+import inspect
+def f (x):
+   thisFrame = inspect.currentframe()
+   print(x, thisFrame)
+   if x == 0:
+      for frame in inspect.stack():
+         print("   ", frame)
+      return 0
+   else:
+      return x + f(x-1)
+
+def g (x):
+   return f(x)
+
+print(f(9))
+
+  #+end_src  
+
+  #+RESULTS:
+  #+begin_example
+  9 <frame at 0x7efc6f186040, file '<stdin>', line 4, code f>
+  8 <frame at 0x7efc6f186dd0, file '<stdin>', line 4, code f>
+  7 <frame at 0x7efc6f12cac0, file '<stdin>', line 4, code f>
+  6 <frame at 0x7efc6f19b3c0, file '<stdin>', line 4, code f>
+  5 <frame at 0x7efc6f07d040, file '<stdin>', line 4, code f>
+  4 <frame at 0x7efc6f07d200, file '<stdin>', line 4, code f>
+  3 <frame at 0x7efc6f04d040, file '<stdin>', line 4, code f>
+  2 <frame at 0x7efc6f04d200, file '<stdin>', line 4, code f>
+  1 <frame at 0x7efc6f04d3c0, file '<stdin>', line 4, code f>
+  0 <frame at 0x7efc6f04d580, file '<stdin>', line 4, code f>
+      FrameInfo(frame=<frame at 0x7efc6f04d580, file '<stdin>', line 7, code f>, filename='<stdin>', lineno=6, function='f', code_context=None, index=None)
+      FrameInfo(frame=<frame at 0x7efc6f04d3c0, file '<stdin>', line 10, code f>, filename='<stdin>', lineno=10, function='f', code_context=None, index=None)
+      FrameInfo(frame=<frame at 0x7efc6f04d200, file '<stdin>', line 10, code f>, filename='<stdin>', lineno=10, function='f', code_context=None, index=None)
+      FrameInfo(frame=<frame at 0x7efc6f04d040, file '<stdin>', line 10, code f>, filename='<stdin>', lineno=10, function='f', code_context=None, index=None)
+      FrameInfo(frame=<frame at 0x7efc6f07d200, file '<stdin>', line 10, code f>, filename='<stdin>', lineno=10, function='f', code_context=None, index=None)
+      FrameInfo(frame=<frame at 0x7efc6f07d040, file '<stdin>', line 10, code f>, filename='<stdin>', lineno=10, function='f', code_context=None, index=None)
+      FrameInfo(frame=<frame at 0x7efc6f19b3c0, file '<stdin>', line 10, code f>, filename='<stdin>', lineno=10, function='f', code_context=None, index=None)
+      FrameInfo(frame=<frame at 0x7efc6f12cac0, file '<stdin>', line 10, code f>, filename='<stdin>', lineno=10, function='f', code_context=None, index=None)
+      FrameInfo(frame=<frame at 0x7efc6f186dd0, file '<stdin>', line 10, code f>, filename='<stdin>', lineno=10, function='f', code_context=None, index=None)
+      FrameInfo(frame=<frame at 0x7efc6f186040, file '<stdin>', line 10, code f>, filename='<stdin>', lineno=10, function='f', code_context=None, index=None)
+      FrameInfo(frame=<frame at 0x7efc6f1b7800, file '<stdin>', line 15, code <module>>, filename='<stdin>', lineno=15, function='<module>', code_context=None, index=None)
+  45
+  #+end_example
