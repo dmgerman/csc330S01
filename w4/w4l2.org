@@ -1,0 +1,339 @@
+#+STARTUP: showall
+#+STARTUP: lognotestate
+#+TAGS: research(r) uvic(u) today(y) todo(t) cooking(c)
+#+SEQ_TODO: TODO(t) STARTED(s) DEFERRED(r) CANCELLED(c) | WAITING(w) DELEGATED(d) APPT(a) DONE(d)
+#+DRAWERS: HIDDEN STATE
+#+ARCHIVE: %s_done::
+#+TITLE: 
+#+CATEGORY: 
+#+PROPERTY: header-args:sql             :engine postgresql  :exports both :cmdline csc370
+#+PROPERTY: header-args:sqlite          :db /path/to/db  :colnames yes
+#+PROPERTY: header-args:C++             :results output :flags -std=c++17 -Wall --pedantic -Werror
+#+PROPERTY: header-args:R               :results output  :colnames yes
+#+PROPERTY :header-args:python          :results output  :exports both
+#+OPTIONS: ^:nil
+
+
+* Scope
+
+  Lexical
+
+#+begin_src  sml
+
+val a = 1
+
+fun f(x,y) =
+   x + y + 2
+
+val z = f(5,10)
+
+#+end_src
+
+
+** Some caveats
+
+   - OO languages have class scope
+
+   - Scope is different than visibility
+  
+**  lexical scope vs dynamic scope (Perl)
+    
+#+begin_src perl :results output
+
+$var = 9999;
+
+sub inner {
+    print "In Inner: $var\n";
+}
+
+sub A { 
+    my $var = 1; # lexical scope
+    print "\nValue in A:   $var\n";
+    inner() # make call to inner
+}
+
+sub B {
+    local $var = -1; # dynamic scope
+    print "\nValue in B: $var\n";
+    inner() # make call to inner
+}
+
+inner(); # call each function
+A();
+B();
+#+end_src
+
+#+RESULTS:
+#+begin_example
+In Inner: 9999
+
+Value in A:   1
+In Inner: 9999
+
+Value in B: -1
+In Inner: -1
+#+end_example
+
+** pythons scope rules
+
+  #+begin_src python :results output
+a = 10
+def test():
+   print(a)
+   a = 20
+
+test()
+print(a)
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  20
+  10
+  #+end_example
+
+
+  #+begin_src python :results output
+def scope_test():
+    def do_local():
+        spam = "local spam"
+
+    def do_nonlocal():
+        nonlocal spam
+        spam = "nonlocal spam"
+
+    def do_global():
+        global spam
+        spam = "global spam"
+
+    spam = "test spam"
+    do_local()
+    print("After local assignment:", spam)
+    do_nonlocal()
+    print("After nonlocal assignment:", spam)
+    do_global()
+    print("After global assignment:", spam)
+
+scope_test()
+print("In global scope:", spam)
+  #+end_src
+
+
+
+* Environment
+
+Static vs Dynamic environment
+
+#+begin_src  sml
+
+val a = 1
+
+fun f(x,y) =
+   x + y + 2
+
+val z = f(5,10)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val a = 1 : int
+val f = fn : int * int -> int
+val z = 17 : int
+END
+#+end_example
+
+#+begin_src  sml
+val a = 1
+
+fun fact(x) =
+   if x <= a then
+      1
+   else
+      x * fact(x-1)
+
+val z = fact(5)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+val a = 1 : int
+val fact = fn : int -> int
+val z = 120 : int
+END
+#+end_example
+
+* Closures
+
+*functions save the current dynamic environment when they are created!!!!*
+
+
+** simple example
+
+  #+begin_src sml
+val x = 0
+fun f () =
+   x
+val x = 10
+val z = f()
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  val x = <hidden-value> : int
+  val f = fn : unit -> int
+  val x = 10 : int
+  val z = 0 : int
+  END
+  #+end_example
+
+** a bit more complex
+
+  #+begin_src sml
+val x = 0
+fun f () =
+   fn () => x
+
+val x = 10
+val z = f()()
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  val x = <hidden-value> : int
+  val f = fn : unit -> unit -> int
+  val x = 10 : int
+  val z = 0 : int
+  END
+  #+end_example
+
+  * a bit, bit more complex
+
+  #+begin_src sml
+fun g (x) = 
+   5 + x
+
+fun f () =
+   let
+      val y = 3
+   in
+      fn () => g 3
+   end
+
+fun g (x) =
+   x ^ "..."
+val z = f()()
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  val g = <hidden-value> : int -> int
+  val f = fn : unit -> unit -> int
+  val g = fn : string -> string
+  val z = 8 : int
+  END
+  #+end_example
+
+
+  #+begin_src sml
+fun g (x) = 
+   5 + x
+
+fun f (x) =
+   let
+      val y = 3 
+   in
+      fn () => g (3 + x)
+   end
+
+fun g (x) =
+   x ^ "..."
+val z = f(10)()
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  val g = <hidden-value> : int -> int
+  val f = fn : int -> unit -> int
+  val g = fn : string -> string
+  val z = 18 : int
+  END
+  #+end_example
+
+
+*  Closures in python
+
+  #+begin_src python :results output
+lst = [1,2,3]
+def f():
+   return (lambda : lst[0])
+
+a = f()
+
+print(a())
+
+lst = [3,4,5]
+
+print(a())
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  1
+  3
+  #+end_example
+
+
+  #+begin_src python
+def wrap():
+
+    lst = [1,2,3]
+    def get():
+        return lst[0]
+
+    def inc():
+        lst[0] = lst[0] + 1
+
+    return (get, inc)
+
+(get,inc) = wrap()
+
+print(get())
+print(inc())
+print(get())
+  #+end_src
+
+
+* Using composition  to solve problems
+
+- map/filter
+
+
+
+awk, but i never remember it
+
+
+#+begin_src sh
+awk '{n += $1}; END{print n}' 
+#+end_src
+
+or pasted
+
+#+begin_src sh
+paste -sd+ file.txt | bc
+#+end_src
+
+
+#+begin_src sh
+csvcut -c 102 babies.txt  | csvsql -H --query 'select sum(a) from stdin'
+#+end_src
+
+#+begin_src sh
+csvcut -c 102 babies.txt  | paste -sd'+'  | bc 
+#+end_src
+
+#+begin_src sh
+csvcut -c 102 babies.txt  | awk '{n += $1}; END{print n}'   
+#+end_src
+
