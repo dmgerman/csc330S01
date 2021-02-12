@@ -1,0 +1,182 @@
+#+STARTUP: showall
+#+STARTUP: lognotestate
+#+TAGS: research(r) uvic(u) today(y) todo(t) cooking(c)
+#+SEQ_TODO: TODO(t) STARTED(s) DEFERRED(r) CANCELLED(c) | WAITING(w) DELEGATED(d) APPT(a) DONE(d)
+#+DRAWERS: HIDDEN STATE
+#+ARCHIVE: %s_done::
+#+TITLE: 
+#+CATEGORY: 
+#+PROPERTY: header-args:sql             :engine postgresql  :exports both :cmdline csc370
+#+PROPERTY: header-args:sqlite          :db /path/to/db  :colnames yes
+#+PROPERTY: header-args:C++             :results output :flags -std=c++17 -Wall --pedantic -Werror
+#+PROPERTY: header-args:R               :results output  :colnames yes
+#+PROPERTY :header-args:python          :results output  :exports both
+#+OPTIONS: ^:nil
+
+* Currying in python
+
+#+begin_src python :results output
+import functools
+
+def add(x,y):
+        return x + y
+
+# create a new function that multiplies by 2
+add2 = functools.partial(add,2)
+
+print(add2)
+print(add2(4))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+functools.partial(<function add at 0x7ff96405c1f0>, 2)
+6
+#+end_example
+
+
+* Type Inference
+
+  #+begin_src javascript
+function f(x: number): number {
+  return x + 1;
+}
+
+console.log("hello world", f(10)); 
+  #+end_src
+
+
+#+begin_src rust
+val y 
+
+fn f(x:i64)->i64  {
+    x  + 1
+}
+
+fn main() {
+    println!("Hello world: {} {}\n",y f(10));
+}
+#+end_src
+
+#+begin_src scala
+val y = 1
+
+def f(x:Int):Int = {
+  x + 1
+}
+println("Hello, world!", y, f(10))
+#+end_src
+
+#+begin_src python
+def f(x:int)->int:
+    return(x * 2)
+
+print("hello world", f(10))
+#+end_src
+
+(use mypy)
+
+* Equivalence
+
+Assume that we are only concerned with int. Are MAX and max equivalent?
+
+  #+begin_src C
+#define MAX(a,b) (a < b? a:b)
+
+int max(int a, inb b) {
+    return a > b ? a : b;
+}
+  #+end_src
+
+Are these two functions PL equivalent?
+
+  #+begin_src python :output results
+def f(x):
+   x * 2
+
+def g(x):
+  2 * x
+  #+end_src
+  
+
+
+* Equivalence... 2
+
+Compute the square of even  numbers between 0 and 20
+
+#+begin_src python :results output
+out = []
+
+# Using loop for constructing output list 
+for x in range(20): 
+    if x % 2 == 0: 
+        out.append(x*x) 
+
+print(out)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+[0, 4, 16, 36, 64, 100, 144, 196, 256, 324]
+#+end_example
+
+using a comprehension  
+
+#+begin_src python :results output
+
+# simple comprehension
+
+out = [x * x for x in range(20) if x % 2 == 0]
+
+print(out)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+[0, 4, 16, 36, 64, 100, 144, 196, 256, 324]
+#+end_example
+
+#+begin_src python :results output
+
+out = map(lambda x: x * x, 
+        filter(lambda x : x %2 == 0,
+           range(20)))
+
+print(list(out))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+[0, 4, 16, 36, 64, 100, 144, 196, 256, 324]
+#+end_example
+
+#+begin_src python :results output
+def square (x):
+   return(x * x)
+
+def even(x):
+   return x % 2 ==0
+
+out = map(square, 
+        filter(even,
+           range(20)))
+
+print(list(out))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+[0, 4, 16, 36, 64, 100, 144, 196, 256, 324]
+#+end_example
+
+
+* On the uglyness  of prefixed map/filter
+
+  #+begin_src scala
+val lst = List(1,2,3) map(_*2) filter(_>2)
+
+println(lst)
+  #+end_src  
+
+
