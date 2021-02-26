@@ -1,0 +1,156 @@
+#+STARTUP: showall
+#+STARTUP: lognotestate
+#+TAGS: research(r) uvic(u) today(y) todo(t) cooking(c)
+#+SEQ_TODO: TODO(t) STARTED(s) DEFERRED(r) CANCELLED(c) | WAITING(w) DELEGATED(d) APPT(a) DONE(d)
+#+DRAWERS: HIDDEN STATE
+#+ARCHIVE: %s_done::
+#+TITLE: 
+#+CATEGORY: 
+#+PROPERTY: header-args:sql             :engine postgresql  :exports both :cmdline csc370
+#+PROPERTY: header-args:sqlite          :db /path/to/db  :colnames yes
+#+PROPERTY: header-args:C++             :results output :flags -std=c++17 -Wall --pedantic -Werror
+#+PROPERTY: header-args:R               :results output  :colnames yes
+#+PROPERTY :header-args:python          :results output  :exports both
+#+OPTIONS: ^:nil
+
+* Scope
+
+
+#+begin_src racket :results output
+(define (f x) (letrec (
+                [y (+ x 1)]
+                [z (+ x 1)]
+                )
+                 (+ y z )))
+(f 10)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+22
+#+end_example
+
+
+
+
+#+begin_src  racket :results output
+(define (f x) (let* (
+                [y (lambda (x) x)]
+                [z (lambda (x) (y x))]
+                )
+                 (z x)))
+(f 10)
+#+end_src
+
+
+#+begin_src racket :results output
+(define (f x) (let (
+                [y (begin (print "in y ") (+ x 1))]
+                [z (begin (print "in z ") (+ x 1))]
+                )
+                 (+ y z )))
+(f 10)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+"in y ""in z "22
+#+end_example
+
+
+
+* Scope in  java
+
+
+  #+begin_src java
+  public class Main {
+
+    int i = 0;
+    static void myStaticMethod() {
+      System.out.println("Static methods can be called without creating objects, i");
+    }
+
+    // Public method
+    public void myPublicMethod() {
+      System.out.println("Public methods must be called by creating objects");
+    }
+
+    // Main method
+    public static void main(String[] args) {
+      myStaticMethod(); // Call the static method
+      // myPublicMethod(); This would compile an error
+
+      Main myObj = new Main(); // Create an object of Main
+      myObj.myPublicMethod(); // Call the public method on the object
+    }
+  }
+  #+end_src
+
+* The confusion of what is mutable
+
+In python and Java strings are immutable
+  
+#+begin_src python :results output
+x = "abc"[0]
+print(x)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+a
+#+end_example
+
+
+* Mutation/pure vs impure code
+
+  #+begin_src rust
+fn main() {
+    let _immutable_binding = 1;
+    let mut mutable_binding = 1;
+
+    println!("Before mutation: {}", mutable_binding);
+
+    // Ok
+    mutable_binding += 1;
+
+    println!("After mutation: {}", mutable_binding);
+
+    // Error!
+    _immutable_binding += 1;
+    // FIXME ^ Comment out this line
+}
+#+end_src    
+
+haskell... 
+
+https://stackoverflow.com/questions/15183324/what-is-the-difference-between-pure-and-impure-in-haskell/15184030
+
+#+begin_src haskell :results output
+
+myfunc "abc" = ()
+printit st = print (st ++ ", dude")
+addDude input = input ++ ", dude"
+
+:type myfunc
+:type print
+:type printit
+:type addDude
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+myfunc :: [Char] -> ()
+print :: Show a => a -> IO ()
+printit :: [Char] -> IO ()
+addDude :: [Char] -> [Char]
+#+end_example
+
+
+* A Java REPL
+
+clojure  
+
+...and Babashka
+
+https://github.com/babashka/babashka/blob/master/README.md  
