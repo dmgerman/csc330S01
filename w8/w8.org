@@ -104,7 +104,7 @@ Python only allows single line  lambdas :(
 
 #+begin_src python :results output  :exports both
 def for_loop(lst, thunk):
-   list(map(thunk, lst))
+   list(map(thunk, lst))  # below explains why list is needed
 
 mysum = 0
 
@@ -138,7 +138,7 @@ def add(i):
    mysum += i
    print(i,mysum)
 
-list(map(add, range(0,5))) # list needed to consume the iterator
+list(map(add, range(0,5))) 
 print(mysum)
 
 #+end_src
@@ -157,12 +157,12 @@ print(mysum)
 * streams/iterators/generators
 
 
-Python iterators are streams
+Python's iterators are streams
 
 - potentially infinite
 - next(it) retrieves next value in the iterator
 
-Python generators are a subclass of iterators
+Python's generators are a subclass of iterators
 
 
   #+begin_src python :results output  :exports both
