@@ -13,6 +13,20 @@
 #+PROPERTY :header-args:python          :results output  :exports both
 #+OPTIONS: ^:nil
 
+* A detour
+
+#+begin_quote
+You probably won't remember me, but I took your course in Spring 2017 (I am actually replying from an old email I sent
+you).
+
+Anyways, I remember you told everyone a story on the first day of how you ran into one of your old students who told you
+that your course (CSC 330) was the most valuable course they ever took at uVic.
+
+Well, here is another one hahaha. I was just telling someone to take this course today because I can confidently say
+that this was the most valuable course I took at uVic because it changed my whole perspective on programming for the
+better.
+#+end_quote
+
 
 * the body of a for loop as a thunk
 
