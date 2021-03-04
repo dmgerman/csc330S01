@@ -10,7 +10,7 @@
 #+PROPERTY: header-args:sqlite          :db /path/to/db  :colnames yes
 #+PROPERTY: header-args:C++             :results output :flags -std=c++17 -Wall --pedantic -Werror
 #+PROPERTY: header-args:R               :results output  :colnames yes
-#+PROPERTY :header-args:python          :results output  :exports both
+#+PROPERTY: header-args:python          :results output  :exports both
 #+OPTIONS: ^:nil
 
 * A detour
@@ -501,7 +501,7 @@ Duration of g function was 0.7695353031158447 seconds.
 1.5353436153505178
 #+end_example
 
-Here is a "decorator" in C using a macro
+*  A "decorator" in C using a macro
 
 #+begin_src C :main no :results output  :exports both
 #include <stdio.h>
