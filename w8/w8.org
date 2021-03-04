@@ -63,7 +63,7 @@ for_loop(list(range(0,5)), lambda i: print(i))
 4
 #+end_example
 
-#+begin_src python :results output
+#+begin_src python :results output  :exports both
 def for_loop(lst, thunk):
    list(map(thunk, lst))
 
@@ -79,7 +79,7 @@ for_loop(list(range(0,5)), lambda i: print(i))
 4
 #+end_example
 
-#+begin_src python :results output
+#+begin_src python :results output  :exports both
 mysum = 0
 
 for i in range(0,5):
@@ -102,7 +102,7 @@ print(mysum)
 
 Python only allows single line  lambdas :(
 
-#+begin_src python :results output
+#+begin_src python :results output  :exports both
 def for_loop(lst, thunk):
    list(map(thunk, lst))
 
@@ -140,7 +140,7 @@ Python iterators are streams
 Python generators are a subclass of iterators
 
 
-  #+begin_src python :results output
+  #+begin_src python :results output  :exports both
 import itertools
 
 a = itertools.count()
@@ -162,7 +162,7 @@ print(next(a))
 
   From a known list
 
-  #+begin_src python :results output
+  #+begin_src python :results output  :exports both
 lst = [1,2,3,4.5]
 myit = iter(lst)
 
@@ -180,7 +180,7 @@ print(next(myit))
 
 Programatically:
 
-  #+begin_src python :results output
+  #+begin_src python :results output  :exports both
 class Numbers:
    def __iter__(self):
         self.a = 0
@@ -205,7 +205,7 @@ print(next(myiter))
   2
   #+end_example
 
-#+begin_src python :results output
+#+begin_src python :results output  :exports both
 def infinite_sequence():
     num = 0
     while True:
@@ -229,7 +229,7 @@ print(next(myiter))
 
 compare this
 
-  #+begin_src python :results output
+  #+begin_src python :results output  :exports both
 a = [i for i in range(0,10)]
 print(a)
 print(type(a))
@@ -241,7 +241,7 @@ print(type(a))
   <class 'list'>
   #+end_example
 
-#+begin_src python :results output
+#+begin_src python :results output  :exports both
 a = (i for i in range(0,10))
 print(a)
 print(type(a))
@@ -258,7 +258,7 @@ print(type(a))
 
   In the repl
 
-  #+begin_src python :results output
+  #+begin_src python :results output  :exports both
     import sqlite3
     conn = sqlite3.connect('/tmp/collection.anki2');
     cur = conn.cursor()
@@ -275,7 +275,7 @@ print(type(a))
   vs
 
 
-#+begin_src python :results output
+#+begin_src python :results output  :exports both
 import sqlite3
 conn = sqlite3.connect('/tmp/collection.anki2');
 cur = conn.cursor()
@@ -297,7 +297,7 @@ map(print, it)
 * This illustrates lazy evaluation
 
 
-#+begin_src python :results output
+#+begin_src python :results output  :exports both
 import sqlite3
 def myfun(x):
     print("inside", x)
@@ -332,7 +332,7 @@ l = map(myfun, it)
 
 Redefine the function with a lambda that does "something else"
   
-#+begin_src racket :results output
+#+begin_src racket :results output  :exports both
 (define (f n)
   (+ 1 n))
 
@@ -381,7 +381,7 @@ In the assignment we have a memoization decorator:
 
 Decorators in python
 
-#+begin_src python :results output
+#+begin_src python :results output  :exports both
 def debug(func):
     def helper(x):
         print("debug ", x)
@@ -402,7 +402,7 @@ print(f(1))
 
 And python has sml-lish *one parameter* handling
 
-#+begin_src python :results output
+#+begin_src python :results output  :exports both
 def debug(func):
     def helper(*x):
         print("debug ", x)
@@ -430,7 +430,7 @@ debug  (1, 2, 3)
 And this is one that is quite handy (from the standard library)
 
 
-#+begin_src python :results output
+#+begin_src python :results output  :exports both
 import functools
 @functools.lru_cache(maxsize=100)
 def f(n):
@@ -452,7 +452,7 @@ inside my function
 
 And this is an example of creating a decorator for any function
 
-#+begin_src python :results output
+#+begin_src python :results output  :exports both
 import functools
 import time
 import math
