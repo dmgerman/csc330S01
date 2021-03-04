@@ -65,7 +65,28 @@ for_loop(list(range(0,5)), lambda i: print(i))
 4
 #+end_example
 
-Python only allows single line 
+#+begin_src python :results output
+mysum = 0
+
+for i in range(0,5):
+   mysum += i
+   print(i,mysum)
+
+print(mysum)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+0 0
+1 1
+2 3
+3 6
+4 10
+10
+#+end_example
+
+
+Python only allows single line  lambdas :(
 
 #+begin_src python :results output
 def for_loop(lst, thunk):
@@ -75,7 +96,7 @@ mysum = 0
 
 def add(i):
    global mysum  # use nonlocal if this function is inside another function
-   mysum = mysum + i
+   mysum += i
    print(i,mysum)
 
 for_loop(list(range(0,5)), add)
@@ -94,7 +115,7 @@ print(mysum)
 #+end_example
 
 
-* streams/iterators
+* streams/iterators/generators
 
 
 Python iterators are streams
@@ -102,11 +123,13 @@ Python iterators are streams
 - potentially infinite
 - next(it) retrieves next value in the iterator
 
+Python generators are a subclass of iterators
+
 
   #+begin_src python :results output
 import itertools
 
-a = itertools.count(1)
+a = itertools.count()
 
 print(next(a))
 print(next(a))
@@ -115,9 +138,9 @@ print(next(a))
 
   #+RESULTS:
   #+begin_example
+  0
   1
   2
-  3
   #+end_example
 
 
@@ -156,7 +179,6 @@ class Numbers:
 
 obj = Numbers()
 myiter = iter(obj)
-
 print(next(myiter))
 print(next(myiter))
 print(next(myiter))
@@ -169,29 +191,52 @@ print(next(myiter))
   2
   #+end_example
 
+#+begin_src python :results output
+def infinite_sequence():
+    num = 0
+    while True:
+        yield num
+        num += 1
 
-* comprehension as iterators or lists
+myiter = infinite_sequence()
+print(next(myiter))
+print(next(myiter))
+print(next(myiter))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+0
+1
+2
+#+end_example
+
+* comprehension as iterators/generators or lists
 
 compare this
 
   #+begin_src python :results output
 a = [i for i in range(0,10)]
 print(a)
+print(type(a))
   #+end_src
 
   #+RESULTS:
   #+begin_example
   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  <class 'list'>
   #+end_example
 
 #+begin_src python :results output
 a = (i for i in range(0,10))
 print(a)
+print(type(a))
   #+end_src
 
   #+RESULTS:
   #+begin_example
-  <generator object <genexpr> at 0x7fe2e480eb30>
+  <generator object <genexpr> at 0x7fd552741b30>
+  <class 'generator'>
   #+end_example
 
 
@@ -440,4 +485,53 @@ Duration of f function was 1.1826331615447998 seconds.
 1.5353436153505178
 Duration of g function was 0.7695353031158447 seconds.
 1.5353436153505178
+#+end_example
+
+Here is a "decorator" in C using a macro
+
+#+begin_src C :main no :results output 
+#include <stdio.h>
+
+int f(int i) {
+    return i+1;
+}
+
+int main(void)
+{
+   printf("Result %d\n", f(5+10));
+
+   return 0;
+}
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Result 16
+#+end_example
+
+
+#+begin_src C :main no :results output 
+#include <stdio.h>
+
+int f(int i) {
+    return i+1;
+}
+
+#define f(i) (printf("f was called in function %s at line %d\n"\
+              "Parameter to f is expression %s that computes to %d\n",\
+                     __func__, __LINE__, #i, i), f(i))
+
+int main(void)
+{
+   printf("Result %d\n", f(5 + 10));
+
+   return 0;
+}
+#+end_src
+
+#+RESULTS:
+#+begin_example
+f was called in function main at line 20
+Parameter to f is expression 5 + 10 that computes to 15
+Result 16
 #+end_example
