@@ -128,6 +128,31 @@ print(mysum)
 10
 #+end_example
 
+Removing the unnecessary wrapping:
+
+#+begin_src python :results output  :exports both
+mysum = 0
+
+def add(i):
+   global mysum  # use nonlocal if this function is inside another function
+   mysum += i
+   print(i,mysum)
+
+list(map(add, range(0,5))) # list needed to consume the iterator
+print(mysum)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+0 0
+1 1
+2 3
+3 6
+4 10
+10
+#+end_example
+
 
 * streams/iterators/generators
 
