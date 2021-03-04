@@ -1,0 +1,443 @@
+#+STARTUP: showall
+#+STARTUP: lognotestate
+#+TAGS: research(r) uvic(u) today(y) todo(t) cooking(c)
+#+SEQ_TODO: TODO(t) STARTED(s) DEFERRED(r) CANCELLED(c) | WAITING(w) DELEGATED(d) APPT(a) DONE(d)
+#+DRAWERS: HIDDEN STATE
+#+ARCHIVE: %s_done::
+#+TITLE: 
+#+CATEGORY: 
+#+PROPERTY: header-args:sql             :engine postgresql  :exports both :cmdline csc370
+#+PROPERTY: header-args:sqlite          :db /path/to/db  :colnames yes
+#+PROPERTY: header-args:C++             :results output :flags -std=c++17 -Wall --pedantic -Werror
+#+PROPERTY: header-args:R               :results output  :colnames yes
+#+PROPERTY :header-args:python          :results output  :exports both
+#+OPTIONS: ^:nil
+
+
+* the body of a for loop as a thunk
+
+#+begin_src python :results output
+for i in range(0,5):
+    print(i)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+0
+1
+2
+3
+4
+#+end_example
+
+#+begin_src python :results output
+def for_loop(lst, thunk):
+    if lst != []:
+        thunk(lst[0])
+        for_loop(lst[1:], thunk)
+
+for_loop(list(range(0,5)), lambda i: print(i))
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+0
+1
+2
+3
+4
+#+end_example
+
+#+begin_src python :results output
+def for_loop(lst, thunk):
+   list(map(thunk, lst))
+
+for_loop(list(range(0,5)), lambda i: print(i))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+0
+1
+2
+3
+4
+#+end_example
+
+Python only allows single line 
+
+#+begin_src python :results output
+def for_loop(lst, thunk):
+   list(map(thunk, lst))
+
+mysum = 0
+
+def add(i):
+   global mysum  # use nonlocal if this function is inside another function
+   mysum = mysum + i
+   print(i,mysum)
+
+for_loop(list(range(0,5)), add)
+print(mysum)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+0 0
+1 1
+2 3
+3 6
+4 10
+10
+#+end_example
+
+
+* streams/iterators
+
+
+Python iterators are streams
+
+- potentially infinite
+- next(it) retrieves next value in the iterator
+
+
+  #+begin_src python :results output
+import itertools
+
+a = itertools.count(1)
+
+print(next(a))
+print(next(a))
+print(next(a))
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  1
+  2
+  3
+  #+end_example
+
+
+* They can be created in many ways
+
+  From a known list
+
+  #+begin_src python :results output
+lst = [1,2,3,4.5]
+myit = iter(lst)
+
+print(next(myit))
+print(next(myit))
+print(next(myit))
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  1
+  2
+  3
+  #+end_example
+
+Programatically:
+
+  #+begin_src python :results output
+class Numbers:
+   def __iter__(self):
+        self.a = 0
+        return self
+
+   def __next__(self):
+        x = self.a
+        self.a +=1   # raise StopIteration to stop iterator
+        return x
+
+obj = Numbers()
+myiter = iter(obj)
+
+print(next(myiter))
+print(next(myiter))
+print(next(myiter))
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  0
+  1
+  2
+  #+end_example
+
+
+* comprehension as iterators or lists
+
+compare this
+
+  #+begin_src python :results output
+a = [i for i in range(0,10)]
+print(a)
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  #+end_example
+
+#+begin_src python :results output
+a = (i for i in range(0,10))
+print(a)
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  <generator object <genexpr> at 0x7fe2e480eb30>
+  #+end_example
+
+
+* database example
+
+  In the repl
+
+  #+begin_src python :results output
+    import sqlite3
+    conn = sqlite3.connect('/tmp/collection.anki2');
+    cur = conn.cursor()
+    res = cur.execute('select * from cards limit 10');
+    tuples = res.fetchall()
+    print(tuples)
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  [(1, 1, 1582361930857, 0, 1613500634, 306, 0, -1, 1146, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (2, 1, 1582361930857, 1, 1613500634, 306, 0, -1, 1146, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (3, 2, 1582361930857, 0, 1613500634, 306, 0, -1, 1147, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (4, 2, 1582361930857, 1, 1613500634, 306, 0, -1, 1147, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (5, 3, 1582361930857, 0, 1613500634, 306, 0, -1, 1148, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (6, 3, 1582361930857, 1, 1613500634, 306, 0, -1, 1148, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (7, 4, 1582361930857, 0, 1613500634, 306, 0, -1, 1149, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (8, 4, 1582361930857, 1, 1613500634, 306, 0, -1, 1149, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (9, 5, 1582361930857, 0, 1613500634, 306, 0, -1, 1150, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (10, 5, 1582361930857, 1, 1613500634, 306, 0, -1, 1150, 0, 2500, 0, 0, 0, 0, 0, 0, '')]
+  #+end_example
+
+  vs
+
+
+#+begin_src python :results output
+import sqlite3
+conn = sqlite3.connect('/tmp/collection.anki2');
+cur = conn.cursor()
+it = cur.execute('select * from cards limit 10');
+print(it)
+print(next(it))
+print(next(it))
+map(print, it)
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  <sqlite3.Cursor object at 0x7fb11cd4ea40>
+  (1, 1, 1582361930857, 0, 1613500634, 306, 0, -1, 1146, 0, 2500, 0, 0, 0, 0, 0, 0, '')
+  (2, 1, 1582361930857, 1, 1613500634, 306, 0, -1, 1146, 0, 2500, 0, 0, 0, 0, 0, 0, '')
+  <map object at 0x7fb11cd8a0a0>
+  #+end_example
+
+* This illustrates lazy evaluation
+
+
+#+begin_src python :results output
+import sqlite3
+def myfun(x):
+    print("inside", x)
+    return x
+
+conn = sqlite3.connect('/tmp/collection.anki2');
+cur = conn.cursor()
+it = cur.execute('select * from cards limit 10');
+l = map(myfun, it)
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  after map
+  <map object at 0x7fc83227da90>
+  after print l
+  inside (1, 1, 1582361930857, 0, 1613500634, 306, 0, -1, 1146, 0, 2500, 0, 0, 0, 0, 0, 0, '')
+  inside (2, 1, 1582361930857, 1, 1613500634, 306, 0, -1, 1146, 0, 2500, 0, 0, 0, 0, 0, 0, '')
+  inside (3, 2, 1582361930857, 0, 1613500634, 306, 0, -1, 1147, 0, 2500, 0, 0, 0, 0, 0, 0, '')
+  inside (4, 2, 1582361930857, 1, 1613500634, 306, 0, -1, 1147, 0, 2500, 0, 0, 0, 0, 0, 0, '')
+  inside (5, 3, 1582361930857, 0, 1613500634, 306, 0, -1, 1148, 0, 2500, 0, 0, 0, 0, 0, 0, '')
+  inside (6, 3, 1582361930857, 1, 1613500634, 306, 0, -1, 1148, 0, 2500, 0, 0, 0, 0, 0, 0, '')
+  inside (7, 4, 1582361930857, 0, 1613500634, 306, 0, -1, 1149, 0, 2500, 0, 0, 0, 0, 0, 0, '')
+  inside (8, 4, 1582361930857, 1, 1613500634, 306, 0, -1, 1149, 0, 2500, 0, 0, 0, 0, 0, 0, '')
+  inside (9, 5, 1582361930857, 0, 1613500634, 306, 0, -1, 1150, 0, 2500, 0, 0, 0, 0, 0, 0, '')
+  inside (10, 5, 1582361930857, 1, 1613500634, 306, 0, -1, 1150, 0, 2500, 0, 0, 0, 0, 0, 0, '')
+  [(1, 1, 1582361930857, 0, 1613500634, 306, 0, -1, 1146, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (2, 1, 1582361930857, 1, 1613500634, 306, 0, -1, 1146, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (3, 2, 1582361930857, 0, 1613500634, 306, 0, -1, 1147, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (4, 2, 1582361930857, 1, 1613500634, 306, 0, -1, 1147, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (5, 3, 1582361930857, 0, 1613500634, 306, 0, -1, 1148, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (6, 3, 1582361930857, 1, 1613500634, 306, 0, -1, 1148, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (7, 4, 1582361930857, 0, 1613500634, 306, 0, -1, 1149, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (8, 4, 1582361930857, 1, 1613500634, 306, 0, -1, 1149, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (9, 5, 1582361930857, 0, 1613500634, 306, 0, -1, 1150, 0, 2500, 0, 0, 0, 0, 0, 0, ''), (10, 5, 1582361930857, 1, 1613500634, 306, 0, -1, 1150, 0, 2500, 0, 0, 0, 0, 0, 0, '')]
+  #+end_example
+
+
+* decorators
+
+Redefine the function with a lambda that does "something else"
+  
+#+begin_src racket :results output
+(define (f n)
+  (+ 1 n))
+
+(define (debug f) 
+  (lambda (n)
+    (begin (print (string-append "calling with parm: " (number->string n) "\n")) (f n))))
+
+
+(set! f (debug f))
+(f 4)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+"calling with parm: 4\n"5
+#+end_example
+
+In the assignment we have a memoization decorator:
+
+#+begin_src racket
+(define (memoize f)
+  (let
+      ([memo null])
+    (lambda (x)
+      (let [(ans (assoc x memo))]
+        (if ans
+            (cdr ans)
+            (let ([newans (f x)])
+              (begin
+                (set! memo (cons (cons x newans) memo))
+                newans)))
+        ))))
+
+
+(define (f n) (+ n 1))
+
+(set! f (memoize f))
+
+(f 5)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+6
+#+end_example
+
+Decorators in python
+
+#+begin_src python :results output
+def debug(func):
+    def helper(x):
+        print("debug ", x)
+        return func(x);
+    
+    return helper
+
+def f(n):
+    return n+1
+
+f = debug(f)
+
+print(f(1))
+
+
+#+end_src
+
+
+And python has sml-lish *one parameter* handling
+
+#+begin_src python :results output
+def debug(func):
+    def helper(*x):
+        print("debug ", x)
+        return func(*x);
+    
+    return helper
+
+def f(n, m, p):
+    return n+m + p
+
+f = debug(f)
+
+print(f(1,2,3))
+
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+debug  (1, 2, 3)
+6
+#+end_example
+
+
+And this is one that is quite handy (from the standard library)
+
+
+#+begin_src python :results output
+import functools
+@functools.lru_cache(maxsize=100)
+def f(n):
+    print("inside my function")
+    return n+1
+
+print(f(1))
+print(f(1))
+print(f(1))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+inside my function
+2
+2
+2
+#+end_example
+
+And this is an example of creating a decorator for any function
+
+#+begin_src python :results output
+import functools
+import time
+import math
+import operator
+
+
+def timerun(func):
+    """ Calculate the execution time of a method and return it back"""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        duration = time.time() - start
+        print(f"Duration of {func.__name__} function was {duration} seconds.")
+        return result
+
+    return wrapper
+
+
+def f(n):
+    total = 0
+    for i in range(0,n):
+        val = math.sin(i)
+        total += val
+    return total
+
+def g(n):
+    m = map(math.sin, range(0, n))
+    theSum = functools.reduce(operator.add, m, 0)
+    return theSum
+    
+
+f = timerun(f)
+g = timerun(g)
+
+print(f(10000000))
+print(g(10000000))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Duration of f function was 1.1826331615447998 seconds.
+1.5353436153505178
+Duration of g function was 0.7695353031158447 seconds.
+1.5353436153505178
+#+end_example
