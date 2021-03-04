@@ -67,7 +67,7 @@ for_loop(list(range(0,5)), lambda i: print(i))
 def for_loop(lst, thunk):
    list(map(thunk, lst))
 
-for_loop(list(range(0,5)), lambda i: print(i))
+for_loop(range(0,5), lambda i: print(i))
 #+end_src
 
 #+RESULTS:
@@ -113,7 +113,7 @@ def add(i):
    mysum += i
    print(i,mysum)
 
-for_loop(list(range(0,5)), add)
+for_loop(range(0,5), add)
 print(mysum)
 
 #+end_src
