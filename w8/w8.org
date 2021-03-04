@@ -30,7 +30,7 @@ better.
 
 * the body of a for loop as a thunk
 
-#+begin_src python :results output
+#+begin_src python :results output  :exports both
 for i in range(0,5):
     print(i)
 #+end_src
@@ -503,7 +503,7 @@ Duration of g function was 0.7695353031158447 seconds.
 
 Here is a "decorator" in C using a macro
 
-#+begin_src C :main no :results output 
+#+begin_src C :main no :results output  :exports both
 #include <stdio.h>
 
 int f(int i) {
@@ -524,7 +524,7 @@ Result 16
 #+end_example
 
 
-#+begin_src C :main no :results output 
+#+begin_src C :main no :results output  :exports both
 #include <stdio.h>
 
 int f(int i) {
