@@ -1,0 +1,157 @@
+#+STARTUP: showall
+#+STARTUP: lognotestate
+#+TAGS: research(r) uvic(u) today(y) todo(t) cooking(c)
+#+SEQ_TODO: TODO(t) STARTED(s) DEFERRED(r) CANCELLED(c) | WAITING(w) DELEGATED(d) APPT(a) DONE(d)
+#+DRAWERS: HIDDEN STATE
+#+ARCHIVE: %s_done::
+#+TITLE: static typing vs  dynamic-typingb
+#+CATEGORY: 
+#+PROPERTY: header-args:sql             :engine postgresql  :exports both :cmdline csc370
+#+PROPERTY: header-args:sqlite          :db /path/to/db  :colnames yes
+#+PROPERTY: header-args:C++             :results output :flags -std=c++17 -Wall --pedantic -Werror
+#+PROPERTY: header-args:R               :results output  :colnames yes
+#+PROPERTY :header-args:python          :results output  :exports both
+#+OPTIONS: ^:nil
+
+* Carmark
+
+https://www.youtube.com/watch?v=1PhArSujR_A&t=128s
+
+  13:00 - 16:00
+
+And I don't think he has changed his mind:
+
+https://twitter.com/id_aa_carmack/status/1293227109738061826
+
+* How to write better code?
+
+  - TDD (dynamic typing) <=> Type system (static typing)
+
+* Curry Howard correspondence
+
+https://www.youtube.com/watch?v=E5-y5kyyroc
+
+* _Provable_ code
+
+1. The type signature of a program (the type signatures of its bindings, functions, etc) is the theorem
+
+2. The function definition is the proof
+
+3. The compiler verifies the proof
+
+Ultimately the main goal of a verification system is to avoid a program runs and ends in an *invalid* state
+
+- an invalid type operation
+
+* the static type landscape
+
+  Odersky (2013) 
+
+https://www.youtube.com/watch?v=0lXUBVipXa8
+
+at 14
+
+
+* Not all typing systems are created equally
+
+
+- Is Java type system the same as the typing system or SML?
+
+- Who is the type system for?
+
+* Not all type systems are created equal
+
+  Characteristics of a type system
+
+  1. Sum types (one-of-each)
+     e.g. Option
+
+  2. Product types (each-of)
+     e.g. records, lists, tuples
+
+  3. Pattern matching
+
+  4. Parametric Polymorphism
+     Generics
+
+  5. Type inference
+
+  6. Extensible
+
+     "no power to the language developer that is not available to the language user"
+
+* Who is the type system for?
+
+ - The computer (java C) or the human (SML)?
+
+
+* Not so good
+
+  1. Bad syntax!
+
+  2. "Stringly" typed programs
+
+     Depending on features, it is a problem of the language or of the developer
+
+  2. False positives. "The compiler is getting on my way"
+
+  3. Type inference
+
+    - Expressive but incomplete
+
+    or
+
+    - complete but weak
+
+#+begin_src sml
+fun sum(xs) =
+    case xs of
+        [] => 0
+      | x::xs' => 1 + sum(xs')
+#+end_src      
+
+#+RESULTS:
+#+begin_example
+val sum = fn : 'a list -> int
+#+end_example
+  
+What if in my program I only need to do list of integers?
+
+The type inference system of SML tries to find the most generic type.
+
+I have to do:
+
+#+begin_src sml
+fun sum(xs: int list) =
+    case xs of
+        [] => 0
+      | x::xs' => 1 + sum(xs')
+#+end_src      
+
+#+RESULTS:
+#+begin_example
+val sum = fn : int list -> int
+END
+#+end_example
+
+#+begin_quote
+From a correctness point of view, what you want is the most specific type that satisfies the implementation.
+#+end_quote
+
+Paul Snively
+
+* Static Typing and Python
+
+  https://www.youtube.com/watch?v=GiZKuyLKvAA
+
+12:04
+
+* further "reading"
+
+- Propositions as Types - Computerphile
+
+  https://www.youtube.com/watch?v=SknxggwRPzU
+
+- Prof. Altenkirch on typing and programs
+
+    https://www.youtube.com/watch?v=SknxggwRPzU
