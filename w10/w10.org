@@ -1,0 +1,426 @@
+#+STARTUP: showall
+#+STARTUP: lognotestate
+#+TAGS: research(r) uvic(u) today(y) todo(t) cooking(c)
+#+SEQ_TODO: TODO(t) STARTED(s) DEFERRED(r) CANCELLED(c) | WAITING(w) DELEGATED(d) APPT(a) DONE(d)
+#+DRAWERS: HIDDEN STATE
+#+ARCHIVE: %s_done::
+#+TITLE: 
+#+CATEGORY: 
+#+PROPERTY: header-args:sql             :engine postgresql  :exports both :cmdline csc370
+#+PROPERTY: header-args:sqlite          :db /path/to/db  :colnames yes
+#+PROPERTY: header-args:C++             :results output :flags -std=c++17 -Wall --pedantic -Werror
+#+PROPERTY: header-args:R               :results output  :colnames yes
+#+PROPERTY: header-args:python          :results output  :exports both
+#+OPTIONS: ^:nil
+
+* Languages
+
+  
+  https://www.tiobe.com/tiobe-index/
+
+
+
+  Hall of fame:
+
+  2006
+
+  https://www.tiobe.com/tiobe-index/ruby/
+
+  2010: https://www.geeks3d.com/20110121/tiobe-index-january-2011-python-wins-the-tiobe-programming-language-award-of-2010/
+
+
+* Why?
+
+  https://www.reddit.com/r/cscareerquestions/comments/fbz2gb/what_did_ruby_do_wrong_to_face_a_clear_decline_in/
+
+  https://insights.stackoverflow.com/survey/2020
+
+  https://insights.stackoverflow.com/survey/2020#correlated-technologies
+
+* By the way, look at salaries
+
+  https://insights.stackoverflow.com/survey/2020#top-paying-technologies
+
+
+* Matz on Ruby's present and future
+
+  "Programmers can change the world"
+       Matz
+
+
+  https://www.youtube.com/watch?v=JojpqfaPhjI
+
+  from 1:41 to 17:23
+
+  then 22:20 to 29:43
+
+* Ruby/Java/C++ inheritance
+
+  An object belongs to a class
+
+* Javascript OOP
+
+  An object uses prototypal inheritance
+
+  Different versions have different syntax
+
+https://www.youtube.com/watch?v=vDJpGenyHaA
+
+  ES6 is closer to classical OO syntax
+
+* You don't need a class to create an object
+
+like a "dictionary"
+
+#+begin_src javascript
+var person = {
+  firstName: "John",
+  lastName: "Doe",
+  age: 50,
+  eyeColor: "blue"
+};
+#+end_src  
+
+* But you can create objects with a function
+
+#+begin_src javascript
+function Person(first, last, age, eyecolor) {
+  this.firstName = first;
+  this.lastName = last;
+  this.age = age;
+  this.eyeColor = eyecolor;
+}
+
+var myFather = new Person("John", "Doe", 50, "blue");
+var myMother = new Person("Sally", "Rally", 48, "green");
+#+end_src
+
+
+* Prototype Inheritance
+
+There are no classes in Javascript 
+
+All JavaScript objects inherit properties and methods from a prototype (another object)
+
+- Person objects inherit from Person.prototype
+- The Object.prototype is on the top of the prototype inheritance chain:
+
+An function/attribute name is first search in the current object. If not available, search the prototype object,
+recursively, until one reaches the Object prototype
+
+#+begin_src javascript
+function Person(first, last, age, eyecolor) {
+  this.firstName = first;
+  this.lastName = last;
+  this.age = age;
+  this.eyeColor = eyecolor;
+}
+
+Person.prototype.nationality = "English";
+
+Person.prototype.name = function() {
+  return this.firstName + " " + this.lastName;
+};
+
+var myFather = new Person("John", "Doe", 50, "blue");
+var myMother = new Person("Sally", "Rally", 48, "green");
+#+end_src
+
+* Javascript class is syntactic sugar
+
+The most recent syntax is syntactic sugar. Objects do not belong to classes.
+
+#+begin_src javascript
+class Person {
+  constructor(first, last, age, eyecolor) {
+     this.firstName = first;
+     this.lastName = last;
+     this.age = age;
+     this.eyeColor = eyecolor;
+  }
+  name() {
+    let date = new Date();
+    return this.firstName + " " + this.lastName;
+  }
+}
+
+var myFather = new Person("John", "Doe", 50, "blue");
+var myMother = new Person("Sally", "Rally", 48, "green");
+#+end_src
+
+* The very useful idiom of return a reference to the object itself
+
+#+begin_src ruby
+class Myclass
+  def hello
+    puts "Hello world"
+    self
+  end
+end
+
+Myclass.new().hello.hello.hello
+
+#+end_src
+
+#+RESULTS:
+
+In C++ we can do the same:
+
+#+begin_src C++
+MyClass& MyClass::operator=(const MyClass& other)
+{
+    MyClass tmp(other);
+    att = other.get_att()
+    return *this;
+}
+#+end_src
+
+
+#+begin_src C++
+MyClass a {}, b{}, c{};
+a = b = c = 0;
+#+end_src
+
+* different terms for the same concept
+
+  | language | itself   | constructor        | destructor              |
+  |----------+----------+--------------------+-------------------------|
+  | Ruby     | self     | initialize         | can be manually created |
+  | Java     | this     | same name as class | finalize                |
+  | C++      | this     | same name as class | ~name of class          |
+  | python   | anything | ___init___           | ___del___                 |
+
+* On python
+
+
+- The syntax requires to add self to any class method:
+- And any class attribute should be prefixed with self
+
+  #+begin_src python :results output
+  class Person:
+    def __init__(selfy, name, age):
+      selfy.name = name
+      selfy.age = age
+
+    def myfunc(selfy):
+      print("Hello my name is " + selfy.name)
+
+    def mystatic():
+      print("I don't have a name")
+
+  Person.mystatic()
+  p1 = Person("John", 36)
+  p1.myfunc()
+  #  p1.mystatic()
+  #+end_src  
+
+  #+RESULTS:
+  #+begin_example
+  I don't have a name
+  Hello my name is John
+  #+end_example
+
+More oddities:
+
+
+#+begin_src python :results output
+def myfunc(selfy):
+   print("Hello my name is " + selfy.name)
+
+class Dog:
+   def __init__(selfy, name, age):
+      selfy.name = name
+#   myfunc = myfunc
+
+class Person:
+   def __init__(selfy, name, age):
+      selfy.name = name
+#   myfunc = myfunc
+      
+
+p1 = Person("John", 36)
+p1.myfunc()
+    #  p1.mystatic()
+  #+end_src  
+
+  #+RESULTS:
+
+
+
+* other python oddities: no  private/protected methods
+
+  Everything is public!
+
+https://stackoverflow.com/questions/451963/making-a-method-private-in-a-python-subclass
+
+
+"Python is distributed as source 90% of the time. So, any idiot who downloads, installs, and then refuses to read
+the API guide and calls the methods out of order still has the source to figure out what went wrong."
+
+https://mail.python.org/pipermail/tutor/2003-October/025932.html
+
+"Nothing is really private in python. No class or class instance can
+keep you away from all what's inside (this makes introspection
+possible and powerful). Python trusts you. It says "hey, if you want
+to go poking around in dark places, I'm gonna trust that you've got
+a good reason and you're not making trouble."
+
+
+* Perl is similar: no private methods
+
+ "a Perl module would prefer that you stayed out of its living room
+  because you weren't invited, not because it has a shotgun."
+
+* python: setters and getters
+
+#+begin_src python :results output
+class Person:
+    
+    species = 'Human'
+    def __init__ (selfy, first, last):
+        selfy.first = first
+        selfy.last = last
+
+    
+print(Person.species)
+p1 = Person ('Ellen', 'Ripley')
+print(p1.first)
+print(p1.last)
+p1.last = 'Weaver'
+print(p1.last)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Human
+Ellen
+Ripley
+Weaver
+#+end_example
+
+
+#+begin_src python :results output
+class Person:
+    def __init__ (selfy, first, last):
+        selfy.first = first
+        selfy.__last__ = last
+
+    def last(selfy):
+        return selfy.__last__
+    
+
+p1 = Person ('Ellen', 'Ripley')
+print(p1.first)
+print(p1.last())
+p1.last = 'Weaver'
+print(p1.last)
+#print(p1.last())
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Ellen
+Ripley
+Weaver
+#+end_example
+
+#+begin_src python :results output 
+class Person:
+    def __init__ (self, first, last):
+        self.first = first
+        self.__last__ = last
+
+    @property
+    def last(self):
+        return self.__last__
+    
+
+p1 = Person ('Ellen', 'Ripley')
+print(p1.first)
+print(p1.last)
+#p1.last = 'Weaver'
+#print(p1.last)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Ellen
+Ripley
+#+end_example
+
+
+#+begin_src python :results output 
+class Person:
+
+    
+
+    def __init__ (self, first, last):
+        self.first = first
+        self.__last__ = last
+
+    @property
+    def last(self):
+        return self.__last__
+
+    @last.setter
+    def last(self, newLast):
+        self.__last__ = newLast
+    
+
+p1 = Person ('Ellen', 'Ripley')
+print(p1.first)
+print(p1.last)
+p1.last = 'Weaver'
+print(p1.last)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Ellen
+Ripley
+Weaver
+#+end_example
+
+
+* About ducks
+
+What about duck typing in strongly typed languages?
+
+Called structural typing:
+
+- the parameter contains information about the requirements that the type should satisfy
+
+
+#+begin_src scala
+def quacker(duck: {def quack(value: String): String}) {
+  println (duck.quack("Quack"))
+}
+#+end_src
+
+
+#+begin_src scala
+object BigDuck {
+  def quack(value: String) = {
+    value.toUpperCase
+  }
+}
+
+object SmallDuck {
+  def quack(value: String) = {
+    value.toLowerCase
+  }
+}
+
+object IamNotReallyADuck {
+  def quack(value: String) = {
+    "prrrrrp"
+  }
+}
+
+quacker(BigDuck)
+quacker(SmallDuck)
+quacker(IamNotReallyADuck)
+#+end_src
+
+
+* on dynamic dispatch and why i  dislike it
