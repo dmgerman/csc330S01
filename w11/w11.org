@@ -1,0 +1,632 @@
+#+STARTUP: showall
+#+STARTUP: lognotestate
+#+TAGS: research(r) uvic(u) today(y) todo(t) cooking(c)
+#+SEQ_TODO: TODO(t) STARTED(s) DEFERRED(r) CANCELLED(c) | WAITING(w) DELEGATED(d) APPT(a) DONE(d)
+#+DRAWERS: HIDDEN STATE
+#+ARCHIVE: %s_done::
+#+TITLE: 
+#+CATEGORY: 
+#+PROPERTY: header-args:sql             :engine postgresql  :exports both :cmdline csc370
+#+PROPERTY: header-args:sqlite          :db /path/to/db  :colnames yes
+#+PROPERTY: header-args:C++             :results output :flags -std=c++17 -Wall --pedantic -Werror
+#+PROPERTY: header-args:R               :results output  :colnames yes
+#+PROPERTY: header-args:python          :results output  :exports both
+#+OPTIONS: ^:nil
+
+* This is a simple python program
+
+The following sections are loosely based on https://www.youtube.com/watch?v=8moWQ1561FY  
+
+
+#+begin_src python
+# squares
+x = 2
+y = 3
+area = lambda : x * y
+print(area())
+#+end_src
+
+#+RESULTS:
+#+begin_example
+6
+#+end_example
+
+
+* Environments
+
+We can mimic an environment with a dictionary
+
+#+begin_src python
+env = dict()
+env['x'] = 2
+env['y'] = 3
+env['area'] = lambda :  env['x'] * env['y']
+
+print(env['x'])
+print(env['y'])
+
+print(env['area']())
+#+end_src
+
+#+RESULTS:
+#+begin_example
+2
+3
+6
+#+end_example
+
+* This is in fact that python does
+
+#+begin_src  python
+x = 2
+y = 3
+area = lambda : x + y
+print(area())
+print("----------")
+print(globals()['x'])
+print(globals()['y'])
+print(globals()['area']())
+#+end_src
+
+#+RESULTS:
+#+begin_example
+5
+----------
+2
+3
+5
+#+end_example
+
+* Python provides a nice class that makes this easier to use
+
+#+begin_src python
+import  types
+
+sq1 = types.SimpleNamespace()
+sq1.x = 2
+sq1.y = 3
+sq1.area = lambda :sq1.x * sq1.y
+print(sq1)
+print(sq1.x)
+print(sq1.y)
+print(sq1.area())
+#+end_src  
+
+#+RESULTS:
+#+begin_example
+namespace(area=<function <lambda> at 0x7fe8806e41f0>, x=2, y=3)
+2
+3
+6
+#+end_example
+
+#+begin_src python
+import  types
+
+sq1 = types.SimpleNamespace(x=2, y=3, area = lambda :sq1.x * sq1.y)
+
+print(sq1)
+print(sq1.x)
+print(sq1.y)
+print(sq1.area())
+#+end_src  
+
+#+RESULTS:
+#+begin_example
+namespace(area=<function <lambda> at 0x7fc67d3881f0>, x=2, y=3)
+2
+3
+6
+#+end_example
+
+  
+* What if we want to create more squares?
+
+  one name space per square...
+
+
+#+begin_src python
+import  types
+
+sq1 = types.SimpleNamespace(x=2, y=3, area = lambda :sq1.x * sq1.y)
+sq2 = types.SimpleNamespace(x=10, y=30, area = lambda :sq1.x * sq1.y)
+
+print(sq1.x)
+print(sq1.y)
+print(sq1.area())
+print(sq2.x)
+print(sq2.y)
+print(sq2.area())
+#+end_src  
+
+#+RESULTS:
+#+begin_example
+2
+3
+6
+10
+30
+6
+#+end_example
+
+Repetition is bad, so let us do:
+
+#+begin_src python
+import  types
+
+def create_square(env, x, y):
+    env.x = x
+    env.y = y
+    env.area = lambda : env.x * env.y
+    return env
+
+sq1 = create_square(types.SimpleNamespace(), 2, 3)
+
+sq2 = create_square(types.SimpleNamespace(), 3, 4)
+
+print(sq1.x)
+print(sq1.y)
+print(sq1.area())
+print(sq2.x)
+print(sq2.y)
+print(sq2.area())
+#+end_src  
+
+#+RESULTS:
+#+begin_example
+2
+3
+6
+3
+4
+12
+#+end_example
+
+* improve it a bit...
+
+Do we really need one lambda in each namespace? lambdas are immutable. Take it out of create_square
+
+#+begin_src python
+import  types
+
+def area(env):
+    return env.x * env.y
+
+def create_square(env, x, y):
+    env.x = x
+    env.y = y
+    env.area = area
+    return env
+
+sq1 = create_square(types.SimpleNamespace(), 2, 3)
+
+sq2 = create_square(types.SimpleNamespace(), 3, 4)
+
+print(sq1.x)
+print(sq1.y)
+print(sq1.area(sq1))
+print(sq2.x)
+print(sq2.y)
+print(sq2.area(sq2))
+#+end_src  
+
+#+RESULTS:
+#+begin_example
+2
+3
+6
+3
+4
+12
+#+end_example
+
+We could have done exactly the same with dictionaries:
+
+
+#+begin_src python
+import  types
+
+def area(env):
+    return env['x'] * env['y']
+
+def create_square(env, x, y):
+    env = {'x' : x, 'y' : y}
+    env['area'] = area
+    return env
+
+sq1 = create_square(dict(), 2, 3)
+sq2 = create_square(dict(), 3, 4)
+
+print(sq1['x'])
+print(sq1['y'])
+print(sq1['area'](sq1))
+
+print(sq2['x'])
+print(sq2['y'])
+print(sq2['area'](sq2))
+#+end_src  
+
+#+RESULTS:
+#+begin_example
+2
+3
+6
+3
+4
+12
+#+end_example
+
+
+Now, what if we want colored squares?
+
+#+begin_src python
+import  types
+
+def area(env):
+    return env.x * env.y
+
+def create_square(env, x, y):
+    env.x = x
+    env.y = y
+    env.area = area
+    return env
+
+def create_color_square(env, x, y, color):
+    env.x = x
+    env.y = y
+    env.color = color
+    env.area = area
+    return env
+
+sq1 = create_square(types.SimpleNamespace(), 2, 3)
+
+sq2 = create_color_square(types.SimpleNamespace(), 3, 4, 'red')
+
+print(sq1.x)
+print(sq1.y)
+print(sq1.area(sq1))
+print(sq2.x)
+print(sq2.y)
+print(sq2.area(sq2))
+#+end_src  
+
+#+RESULTS:
+#+begin_example
+2
+3
+6
+3
+4
+12
+#+end_example
+
+
+
+#+begin_src python
+import  types
+
+def area(env):
+    return env.x * env.y
+
+def create_square(env, x, y):
+    env.x = x
+    env.y = y
+    env.area = area
+    return env
+
+def color_area(env):
+    a = env.parent.area(env)
+    return "This is a red square of area %s"%(a)
+
+def create_color_square(env, x, y, color):
+    parentEnv = create_square(types.SimpleNamespace(), x, y)
+
+    env.parent = parentEnv
+    env.x = env.parent.x
+    env.y = env.parent.y
+    
+    env.color = color
+    env.area = color_area
+    return env
+
+sq1 = create_square(types.SimpleNamespace(), 2, 3)
+
+sq2 = create_color_square(types.SimpleNamespace(), 3, 4, 'red')
+
+print(sq1.x)
+print(sq1.y)
+print(sq1.area(sq1))
+
+print(sq2.x)
+print(sq2.y)
+print(sq2.area(sq2))
+print(sq2.color)
+#+end_src  
+
+#+RESULTS:
+#+begin_example
+2
+3
+6
+3
+4
+This is a red square of area 12
+red
+#+end_example
+
+
+* OOP
+
+#+begin_src python
+
+class Square:
+
+   def area(env):
+       return env.x * env.y
+
+   def __init__(env, x, y):
+       env.x = x
+       env.y = y
+
+class Color_Square(Square):       
+
+   def color_area(env):
+       a = super(env)
+       return "This is a red square of area %s"%(a)
+
+   def __init__(env, x, y, color):
+       super().__init__(x, y)
+       env.color = color
+
+
+sq1 = Square(2, 3)
+
+sq2 = Color_Square(3, 4, 'red')
+
+print(sq1.x)
+print(sq1.y)
+print(sq1.area())
+
+print(sq2.x)
+print(sq2.y)
+print(sq2.area())
+print(sq2.color)
+#+end_src  
+
+#+RESULTS:
+#+begin_example
+2
+3
+6
+3
+4
+12
+red
+#+end_example
+
+
+* metaprogramming
+
+https://www.youtube.com/watch?v=HTLu2DFOdTg
+
+  6:42-13:48
+  20:15-23:15
+  24:37-
+
+  27:05-32:44
+
+
+* Python OOP
+
+https://www.youtube.com/watch?v=HTLu2DFOdTg
+
+at 37:15 - 41:00
+
+- Multiple constructors
+
+@classmethod
+
+- class as a parameter
+
+- static methods 
+
+@staticmethod
+
+- final methods
+
+__perimeter
+
+@property
+
+@radious.setter
+
+
+* Multiple inheritance
+
+From: https://isocpp.org/wiki/faq/multiple-inheritance
+
+** C++
+
+diamond problem: Only one copy of the base class
+
+
+#+begin_example
+       Base
+       /  \
+      /    \
+     /      \
+  Der1      Der2
+     \      /
+      \    /
+       \  /
+       Join
+#+end_example
+
+
+#+begin_src C++ :main no :results output :flags -std=c++17 -Wall --pedantic -Werror
+class Base {
+public:
+  // ...
+protected:
+  int data_;
+};
+class Der1 : public virtual Base {
+                    ↑↑↑↑↑↑↑ // This is the key
+public:
+  // ...
+};
+class Der2 : public virtual Base {
+                    ↑↑↑↑↑↑↑ // This is the key
+public:
+  // ...
+};
+class Join : public Der1, public Der2 {
+public:
+  void method()
+  {
+     data_ = 1;  // Good: this is now unambiguous
+  }
+};
+int main()
+{
+  Join* j = new Join();
+  Base* b = j;   // Good: this is now unambiguous
+}
+#+end_src
+
+** python
+
+Weird semantics for multiple inheritance:
+
+#+begin_src python :results output
+import sys
+
+class Base:
+    """ base """
+    def __init__(self, text):
+        print('>>>>>> Base.__init__() with value ', text)
+    def p(self):
+        print("in base")
+
+class Base2:
+    """ base """
+    def __init__(self, text):
+        print('>>>>>> Base2.__init__() with value ', text)
+    def p(self):
+        print("in base 2")
+
+
+class A(Base):
+    """ A """
+    def __init__(self, text):
+        print('* Start A.__init__() with value ', text)
+        super().__init__("def")
+        print('End A.__init__()')
+
+class B(Base):
+    """ B """
+    def __init__(self, text):
+        print('* Start B.__init__() with value ', text)
+        super().__init__("abc")
+        print('End init A.__init__()')
+    def p(self):
+        print("in B")
+
+
+class Bottom(A,B):
+    """ Bottom """
+    def __init__(self, text):
+        print('* Start init Bottom.__init__()')
+        super().__init__(text)
+        print('End init Bottom.__init__()')
+
+td = Bottom('this is the end')
+td.p()
+
+print(Bottom.mro())
+
+#+end_src   
+
+#+RESULTS:
+#+begin_example
+,* Start init Bottom.__init__()
+,* Start A.__init__() with value  this is the end
+,* Start B.__init__() with value  def
+>>>>>> Base.__init__() with value  abc
+End init A.__init__()
+End A.__init__()
+End init Bottom.__init__()
+in B
+[<class '__main__.Bottom'>, <class '__main__.A'>, <class '__main__.B'>, <class '__main__.Base'>, <class 'object'>]
+#+end_example
+
+  
+#+begin_src python :results output
+import sys
+
+class Base:
+    def p(self):
+        print("in base")
+
+class Base2:
+    def p(self):
+        print("in base 2")
+
+
+class A(Base):
+    pass
+
+class B(Base2):
+    def p(self):
+        print("in B")
+
+
+class Bottom(A,B):
+    pass
+
+
+td = Bottom()
+td.p()
+
+print(Bottom.mro())
+
+#+end_src   
+
+#+RESULTS:
+#+begin_example
+in base
+[<class '__main__.Bottom'>, <class '__main__.A'>, <class '__main__.Base'>, <class '__main__.B'>, <class '__main__.Base2'>, <class 'object'>]
+#+end_example
+
+And the double twisted diamond!
+
+http://python-history.blogspot.com/2010/06/method-resolution-order.html
+
+#+begin_src python :results output
+import sys
+
+class A:
+    pass
+
+class B:
+    pass
+
+class C(A,B):
+    pass
+
+class D(B,A):
+    pass
+
+
+class bottom(C,D):
+    pass
+
+td = bottom()
+print(bottom.mro())
+
+#+end_src   
+
+#+RESULTS:
+
+
+  
